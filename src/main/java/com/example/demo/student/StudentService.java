@@ -17,13 +17,16 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
-    public void addStudent(Student student) {
+    public void addStudent(StudentRegistrationRequest request) {
         Boolean existsEmail = studentRepository
-                .selectExistsEmail(student.getEmail());
+                .selectExistsEmail(request.email());
+
         if (existsEmail) {
             throw new BadRequestException(
-                    "Email " + student.getEmail() + " taken");
+                    "Email " + request.email() + " taken");
         }
+
+        Student student = new Student(request.name(), request.email(), request.gender());
 
         studentRepository.save(student);
     }

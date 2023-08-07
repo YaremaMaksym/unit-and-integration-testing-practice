@@ -42,10 +42,12 @@ class StudentServiceTest {
         // testing if argument is the same as in repository method
 
         // given
-        Student student = new Student("Jamila", "jamila@gmail.com", Gender.FEMALE);
+        StudentRegistrationRequest request = new StudentRegistrationRequest("Jamila", "jamila@gmail.com", Gender.FEMALE);
+
+        Student student = new Student(request.name(), request.email(), request.gender());
 
         // when
-        underTest.addStudent(student);
+        underTest.addStudent(request);
 
         // then
         ArgumentCaptor<Student> studentArgumentCaptor = ArgumentCaptor.forClass(Student.class);
@@ -60,16 +62,16 @@ class StudentServiceTest {
     @Test
     void willThrowWhenEmailIsTaken() {
         // given
-        Student student = new Student("Jamila", "jamila@gmail.com", Gender.FEMALE);
+        StudentRegistrationRequest request = new StudentRegistrationRequest("Jamila", "jamila@gmail.com", Gender.FEMALE);
 
         given(studentRepository.selectExistsEmail(anyString())).willReturn(true);
 
         // when
 
         // then
-        assertThatThrownBy(() -> underTest.addStudent(student))
+        assertThatThrownBy(() -> underTest.addStudent(request))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("Email " + student.getEmail() + " taken");
+                .hasMessageContaining("Email " + request.email() + " taken");
 
         //never executing
         verify(studentRepository, never()).save(any());
