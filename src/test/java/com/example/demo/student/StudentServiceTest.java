@@ -76,7 +76,36 @@ class StudentServiceTest {
     }
 
     @Test
-    @Disabled
     void deleteStudent() {
+        // given
+        Long studentId = 10L;
+
+        given(studentRepository.existsById(any())).willReturn(true);
+
+        // when
+        underTest.deleteStudent(studentId);
+
+        // then
+        ArgumentCaptor<Long> captureStudentId = ArgumentCaptor.forClass(Long.class);
+
+        verify(studentRepository).deleteById(captureStudentId.capture());
+
+        assertThat(captureStudentId.getValue()).isEqualTo(studentId);
+    }
+
+    @Test
+    void willThrowWhenStudentNotExists() {
+        // given
+        Long studentId = 10L;
+
+        given(studentRepository.existsById(any())).willReturn(false);
+        // when
+
+        // then
+        assertThatThrownBy(() -> underTest.deleteStudent(studentId))
+                .isInstanceOf(StudentNotFoundException.class)
+                .hasMessageContaining("Student with id " + studentId + " does not exists");
+
+        verify(studentRepository, never()).deleteById(any());
     }
 }
